@@ -27,6 +27,8 @@ final class TaskListInteractor: TaskListInteractorInputProtocol {
     
     private unowned let presenter: TaskListInteractorOutputProtocol
     
+    private var isFetchingFromAPI = false
+    
     required init(storageManager: StorageManagerProtocol, networkManager: NetworkManagerProtocol, presenter: TaskListInteractorOutputProtocol) {
         self.storageManager = storageManager
         self.networkManager = networkManager
@@ -43,7 +45,10 @@ final class TaskListInteractor: TaskListInteractorInputProtocol {
             switch taskList {
             case .success(let taskList):
                 if taskList.isEmpty {
-                    fetchTasksFromAPI()
+                    if !self.isFetchingFromAPI {
+                        self.isFetchingFromAPI = true
+                        self.fetchTasksFromAPI()
+                    }
                 } else {
                     let dataStore = TaskListDataStore(tasksList: taskList)
                     presenter.taskListDidReceive(with: dataStore)

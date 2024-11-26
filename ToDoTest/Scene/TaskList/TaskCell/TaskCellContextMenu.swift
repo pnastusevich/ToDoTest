@@ -17,6 +17,7 @@ protocol TaskCellContextMenuDelegate: AnyObject {
 extension TaskCell: UIContextMenuInteractionDelegate {
     
     func contextMenuInteraction(_ interaction: UIContextMenuInteraction, configurationForMenuAtLocation location: CGPoint) -> UIContextMenuConfiguration? {
+        
         return UIContextMenuConfiguration(
             identifier: nil,
             previewProvider: { [weak self] in return self?.createContextMenu()},
@@ -24,7 +25,7 @@ extension TaskCell: UIContextMenuInteractionDelegate {
                 return self?.createContextMenuActions()}
         )
     }
-
+    
     private func createContextMenu() -> UIViewController? {
         let previewVC = UIViewController()
         previewVC.view.backgroundColor = .customGray

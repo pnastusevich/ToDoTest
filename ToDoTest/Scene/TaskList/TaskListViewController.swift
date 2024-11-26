@@ -22,6 +22,8 @@ protocol TaskListViewOutputProtocol: AnyObject {
     func editTask(with task: TaskCellViewModelProtocol)
     func shareTask(with task: TaskCellViewModelProtocol)
     func deleteTask(with task: TaskCellViewModelProtocol)
+    
+    func searchTasks(with query: String)
 }
 
 final class TaskListViewController: UIViewController {
@@ -30,6 +32,7 @@ final class TaskListViewController: UIViewController {
     
     private lazy var tableView: UITableView = {
         $0.dataSource = self
+        $0.delegate = self
         $0.register(TaskCell.self, forCellReuseIdentifier: TaskCell.cellID)
         $0.backgroundColor = UIColor.black
         $0.translatesAutoresizingMaskIntoConstraints = false
@@ -170,7 +173,16 @@ extension TaskListViewController: UITableViewDataSource  {
         
         cell.viewModel = cellViewModel
         cell.contextMenuDelegate = self
+        cell.selectionStyle = .none
+
         return cell
+    }
+}
+
+// MARK: UITableViewDelegate
+extension TaskListViewController: UITableViewDelegate {
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: false)
     }
 }
 
@@ -178,8 +190,17 @@ extension TaskListViewController: UITableViewDataSource  {
 extension TaskListViewController: TaskListViewInputProtocol {
     func reloadData(for section: TaskSectionViewModel) {
         presenter.sectionViewModel = section
+        
+        if section.rows.isEmpty {
+            tableView.setEmptyMessage("Нет задач")
+        } else {
+            tableView.restore()
+        }
+        
         tableView.reloadData()
         taskCountLabel.text = "\(presenter.sectionViewModel.numberOfRows) задач"
+        
+        
     }
     func reloadData() {
         tableView.reloadData()
@@ -189,7 +210,13 @@ extension TaskListViewController: TaskListViewInputProtocol {
 // MARK: - UISearchBarDelegate
 extension TaskListViewController: UISearchBarDelegate {
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        
+        presenter.searchTasks(with: searchText)
+    }
+    
+    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+        searchBar.text = ""
+        presenter.searchTasks(with: "")
+        searchBar.resignFirstResponder()
     }
 }
 
@@ -208,3 +235,25 @@ extension TaskListViewController: TaskCellContextMenuDelegate {
     }
 }
 
+// MARK: - UITableView
+extension UITableView {
+    func setEmptyMessage(_ message: String) {
+        let messageLabel: UILabel = {
+            let label = UILabel()
+            label.text = message
+            label.textColor = .gray
+            label.textAlignment = .center
+            label.font = UIFont.systemFont(ofSize: 16)
+            label.sizeToFit()
+            return label
+        }()
+        
+        backgroundView = messageLabel
+        separatorStyle = .none
+    }
+    
+    func restore() {
+        backgroundView = nil
+        separatorStyle = .singleLine
+    }
+}

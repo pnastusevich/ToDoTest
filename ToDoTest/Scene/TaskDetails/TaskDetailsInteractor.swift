@@ -52,7 +52,7 @@ final class TaskDetailsInteractor: TaskDetailsInteractorInputProtocol {
                                       createdDate: date,
                                       isCompleted: false
             ) { newTask in
-                presenter.newSavedTaskDidReceived(with: newTask)
+                self.presenter.newSavedTaskDidReceived(with: newTask)
             }
         }
     }
