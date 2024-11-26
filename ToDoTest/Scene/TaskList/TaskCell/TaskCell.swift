@@ -84,6 +84,8 @@ final class TaskCell: UITableViewCell, CellModelRepresentable {
     private func addContextMenuInteraction() {
         let interaction = UIContextMenuInteraction(delegate: self)
         self.addInteraction(interaction)
+        
+        self.selectionStyle = .none
     }
     
     private func updateView() {
@@ -101,12 +103,13 @@ final class TaskCell: UITableViewCell, CellModelRepresentable {
             let attributedString = NSAttributedString(
                 string: viewModel.name,
                 attributes: [
-                    .strikethroughStyle: NSUnderlineStyle.single.rawValue,
+//                    .strikethroughStyle: NSUnderlineStyle.single.rawValue,
                     .foregroundColor: UIColor.gray,
                     .font: UIFont.boldSystemFont(ofSize: 18)
                 ]
             )
             titleLabel.attributedText = attributedString
+            subtitleLabel.textColor = .gray
         } else {
             isCompleteButton.setImage(UIImage(systemName: "circle"), for: .normal)
             isCompleteButton.tintColor = .gray
@@ -115,6 +118,7 @@ final class TaskCell: UITableViewCell, CellModelRepresentable {
             titleLabel.text = viewModel.name
             titleLabel.textColor = .white
             titleLabel.font = UIFont.boldSystemFont(ofSize: 18)
+            subtitleLabel.textColor = .white
         }
     }
     

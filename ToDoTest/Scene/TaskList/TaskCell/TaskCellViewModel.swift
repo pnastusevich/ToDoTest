@@ -17,7 +17,7 @@ protocol TaskCellViewModelProtocol {
 }
 
 protocol TaskSectionViewModelProtocol {
-    var rows: [TaskCellViewModelProtocol] { get }
+    var rows: [TaskCellViewModelProtocol] { get set }
     var numberOfRows: Int { get }
 }
 
