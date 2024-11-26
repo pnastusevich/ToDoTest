@@ -27,7 +27,7 @@ final class StorageManager: StorageManagerProtocol {
     private let viewContext: NSManagedObjectContext
     private let persistentContainer: NSPersistentContainer
     
-    init(containerName: String = "TaskList") {
+    init(containerName: String = "TasksModel") {
           self.persistentContainer = NSPersistentContainer(name: containerName)
           self.persistentContainer.loadPersistentStores { _, error in
               if let error = error as NSError? {
