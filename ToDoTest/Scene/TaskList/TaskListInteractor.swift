@@ -21,7 +21,7 @@ protocol TaskListInteractorOutputProtocol: AnyObject {
 }
 
 final class TaskListInteractor: TaskListInteractorInputProtocol {
- 
+    
     private let storageManager: StorageManagerProtocol
     private let networkManager: NetworkManagerProtocol
     
@@ -41,17 +41,17 @@ final class TaskListInteractor: TaskListInteractorInputProtocol {
     
     // MARK: - Work in Data - CRUD
     func fetchTaskList() {
-        storageManager.fetchDataTask { taskList in
-            switch taskList {
+        storageManager.fetchDataTask { [weak self] result in
+            switch result {
             case .success(let taskList):
                 if taskList.isEmpty {
-                    if !self.isFetchingFromAPI {
-                        self.isFetchingFromAPI = true
-                        self.fetchTasksFromAPI()
+                    if !self!.isFetchingFromAPI {
+                        self!.isFetchingFromAPI = true
+                        self!.fetchTasksFromAPI()
                     }
                 } else {
                     let dataStore = TaskListDataStore(tasksList: taskList)
-                    presenter.taskListDidReceive(with: dataStore)
+                    self?.presenter.taskListDidReceive(with: dataStore)
                 }
             case .failure(let error):
                 print(error.localizedDescription)
@@ -60,19 +60,26 @@ final class TaskListInteractor: TaskListInteractorInputProtocol {
     }
     
     func fetchTasksFromAPI() {
-        networkManager.fetchData { [unowned self] result in
+        networkManager.fetchData { [weak self] result in
             switch result {
             case .success(let taskList):
                 var newTasks: [Task] = []
                 let currentDate = Date()
                 
+                let group = DispatchGroup() // Для отслеживания асинхронных задач
+                
                 for task in taskList.todos {
-                    self.storageManager.createTask(taskName: task.todo, description: "Нет описания у задачи, которая была получена из API", createdDate: currentDate, isCompleted: task.completed) { task in
+                    group.enter()
+                    self?.storageManager.createTask(taskName: task.todo, description: "Нет описания у задачи, которая была получена из API", createdDate: currentDate, isCompleted: task.completed) { task in
                         newTasks.append(task)
+                        group.leave()
                     }
                 }
-                let dataStore = TaskListDataStore(tasksList: newTasks)
-                presenter.taskListDidReceive(with: dataStore)
+                
+                group.notify(queue: .main) {
+                    let dataStore = TaskListDataStore(tasksList: newTasks)
+                    self?.presenter.taskListDidReceive(with: dataStore)
+                }
                 
             case .failure(let error):
                 print("\(error.localizedDescription) ошибка в fetchTasksFromAPI")
