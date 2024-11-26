@@ -18,7 +18,6 @@ enum NetworkError: Error {
 }
 
 final class NetworkManager: NetworkManagerProtocol {
-    
     func fetchData(completion: @escaping (Result<TasksInApi, NetworkError>) -> Void) {
         guard let url = URL(string: "https://dummyjson.com/todos") else {
             completion(.failure(.invalidURL))
