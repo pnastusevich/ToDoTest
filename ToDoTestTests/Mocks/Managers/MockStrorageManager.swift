@@ -69,14 +69,4 @@ extension MockStorageManager {
         context.persistentStoreCoordinator = persistentStoreCoordinator
         return context
     }
-    
- 
-    static func createMockTask() -> Task {
-          let task = Task()
-          task.name = "Task 1"
-          task.subname = "Description"
-          task.createdAt = Date()
-          task.isCompleted = false
-          return task
-      }
 }
